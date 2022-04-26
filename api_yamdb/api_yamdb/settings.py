@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt', # Добавление SimpleJWT
     'api', # Добавление приложения api
     'titles', # Добавление приложения titles
 ]
@@ -107,3 +108,9 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 
 # Регистрация новой модели пользователя
 AUTH_USER_MODEL = 'titles.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
