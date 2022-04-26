@@ -10,9 +10,9 @@ class Title(models.Model):
 
 class Review(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments')
+        User, on_delete=models.CASCADE, related_name='reviews')
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='comments')
+        Title, on_delete=models.CASCADE, related_name='reviews')
     score = models.FloatField()
     text = models.TextField()
     pub_date = models.DateTimeField(
