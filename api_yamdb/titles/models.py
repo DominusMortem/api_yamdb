@@ -21,7 +21,15 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.TextField()
+    name = models.CharField(max_length=256)
+    year = models.IntegerField()
+    description = models.TextField()
+    category = models.ForeignKey(Category,
+                                 on_delete=models.DO_NOTHING,
+                                 related_name='titles')
+    genre = models.ForeignKey(Genre,
+                              on_delete=models.DO_NOTHING,
+                              related_name='titles')
 
 
 class Review(models.Model):
