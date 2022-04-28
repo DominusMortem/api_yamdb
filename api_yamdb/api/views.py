@@ -3,8 +3,9 @@ from rest_framework import viewsets
 from rest_framework import filters
 from django.shortcuts import get_object_or_404
 
-from .serializers import CategorySerializer, CommentSerializer, ReviewSerializer, GenreSerializer
-from titles.models import Category, Genre, Review, Title
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer)
+from titles.models import Category, Genre, Title
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -23,8 +24,8 @@ class ReviewViewset(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = self.get_title_or_404()
-        queryset = title.reviews.all()
-        return queryset
+        reviews = title.reviews.all()
+        return reviews
 
     def perform_create(self, serializer):
         title = self.get_title_or_404()
@@ -37,12 +38,19 @@ class ReviewViewset(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
 
-    # Тут пока не готово!
-
     def get_queryset(self):
-        title = get_object_or_404(Title, self.kwargs.get('title_id'))
-        queryset = title.reviews.all()
-        return queryset
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        review = title.reviews.get(id=self.kwargs.get('review_id'))
+        comments = review.comments.all()
+        return comments
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        review = title.reviews.get(id=self.kwargs.get('review_id'))
+        serializer.save(
+            author=self.request.user,
+            review_id=review.id
+        )
 
 
 class GenresViewSet(viewsets.ModelViewSet):
@@ -50,4 +58,3 @@ class GenresViewSet(viewsets.ModelViewSet):
     serializer_class = GenreSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name',)
-
