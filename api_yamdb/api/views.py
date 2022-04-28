@@ -3,8 +3,8 @@ from rest_framework import viewsets
 from rest_framework import filters
 from django.shortcuts import get_object_or_404
 
-from .serializers import CategorySerializer, CommentSerializer, ReviewSerializer
-from titles.models import Category, Review, Title
+from .serializers import CategorySerializer, CommentSerializer, ReviewSerializer, GenreSerializer
+from titles.models import Category, Genre, Review, Title
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -43,3 +43,11 @@ class CommentViewSet(viewsets.ModelViewSet):
         title = get_object_or_404(Title, self.kwargs.get('title_id'))
         queryset = title.reviews.all()
         return queryset
+
+
+class GenresViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('name',)
+
