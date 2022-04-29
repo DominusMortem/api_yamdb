@@ -4,7 +4,7 @@ from rest_framework import filters
 from django.shortcuts import get_object_or_404
 
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer)
+                          GenreSerializer, ReviewSerializer, TitleSerializer)
 from titles.models import Category, Genre, Title
 
 
@@ -58,3 +58,8 @@ class GenresViewSet(viewsets.ModelViewSet):
     serializer_class = GenreSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name',)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
