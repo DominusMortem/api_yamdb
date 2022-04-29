@@ -2,8 +2,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework import filters
 
-from .serializers import CategorySerializer, GenreSerializer
-from titles.models import Category, Genre
+from .serializers import CategorySerializer, GenreSerializer, TitleSerializer
+from titles.models import Category, Genre, Title
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -18,3 +18,8 @@ class GenresViewSet(viewsets.ModelViewSet):
     serializer_class = GenreSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name',)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
