@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import User
+
+# Регистрация модели пользователя в админке
+admin.site.register(User)
