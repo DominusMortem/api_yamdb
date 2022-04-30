@@ -15,7 +15,7 @@ from titles.models import User, Category, Genre, Title
 from .serializers import (UserSerializer, MyTokenObtainSerializer,
                           CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, TitleSerializer)
-from .mixins import CreateViewSet
+from .mixins import CreateViewSet, ListCreateDeleteViewSet
 from .permissions import IsAdmin
 
 
@@ -113,11 +113,19 @@ class MyTokenView(TokenObtainPairView):
     serializer_class = MyTokenObtainSerializer
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(ListCreateDeleteViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    lookup_field = 'slug'
     search_fields = ('name',)
+
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        else:
+            permission_classes = [IsAdmin]
+        return [permission() for permission in permission_classes]
 
 
 class ReviewViewset(viewsets.ModelViewSet):
@@ -139,6 +147,13 @@ class ReviewViewset(viewsets.ModelViewSet):
             title_id=title.id
         )
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        else:
+            permission_classes = [IsAdmin]
+        return [permission() for permission in permission_classes]
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -158,11 +173,19 @@ class CommentViewSet(viewsets.ModelViewSet):
         )
 
 
-class GenresViewSet(viewsets.ModelViewSet):
+class GenresViewSet(ListCreateDeleteViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    lookup_field = 'slug'
     search_fields = ('name',)
+
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        else:
+            permission_classes = [IsAdmin]
+        return [permission() for permission in permission_classes]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
