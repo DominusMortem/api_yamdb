@@ -1,4 +1,5 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.backends import TokenBackend
@@ -8,9 +9,12 @@ from django.core.mail import EmailMessage
 from rest_framework.pagination import PageNumberPagination
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from django.shortcuts import get_object_or_404
 
-from titles.models import User
-from .serializers import UserSerializer, MyTokenObtainSerializer
+from titles.models import User, Category, Genre, Title
+from .serializers import (UserSerializer, MyTokenObtainSerializer,
+                          CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, TitleSerializer)
 from .mixins import CreateViewSet
 from .permissions import IsAdmin
 
@@ -107,3 +111,60 @@ class SignUpViewSet(CreateViewSet):
 
 class MyTokenView(TokenObtainPairView):
     serializer_class = MyTokenObtainSerializer
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('name',)
+
+
+class ReviewViewset(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+
+    def get_title_or_404(self):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        return title
+
+    def get_queryset(self):
+        title = self.get_title_or_404()
+        reviews = title.reviews.all()
+        return reviews
+
+    def perform_create(self, serializer):
+        title = self.get_title_or_404()
+        serializer.save(
+            author=self.request.user,
+            title_id=title.id
+        )
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        review = title.reviews.get(id=self.kwargs.get('review_id'))
+        comments = review.comments.all()
+        return comments
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        review = title.reviews.get(id=self.kwargs.get('review_id'))
+        serializer.save(
+            author=self.request.user,
+            review_id=review.id
+        )
+
+
+class GenresViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('name',)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
