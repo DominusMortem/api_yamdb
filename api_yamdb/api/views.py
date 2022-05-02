@@ -12,7 +12,7 @@ from django.utils.encoding import force_bytes
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 
-from titles.models import User, Category, Genre, Title
+from reviews.models import User, Category, Genre, Title
 from .serializers import (UserSerializer, MyTokenObtainSerializer,
                           CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, TitleSerializer,

@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 
-from titles.models import User, Category, Comment, Genre, Review, Title
+from reviews.models import User, Category, Comment, Genre, Review, Title
 
 
 class BadConfirmationCode(APIException):
