@@ -147,7 +147,7 @@ class ReviewViewset(viewsets.ModelViewSet):
         title = self.get_title_or_404()
         serializer.save(
             author=self.request.user,
-            title_id=title.id
+            title=title
         )
 
     def get_permissions(self):
