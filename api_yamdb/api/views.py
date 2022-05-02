@@ -10,13 +10,16 @@ from rest_framework.pagination import PageNumberPagination
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 
 from titles.models import User, Category, Genre, Title
 from .serializers import (UserSerializer, MyTokenObtainSerializer,
                           CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer)
+                          GenreSerializer, ReviewSerializer, TitleSerializer,
+                          TitleCreateSerializer)
 from .mixins import CreateViewSet, ListCreateDeleteViewSet
 from .permissions import IsAdmin
+from .filters import TitleFilter
 
 
 def send_email(user, uid64):
@@ -189,5 +192,12 @@ class GenresViewSet(ListCreateDeleteViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleSerializer
+        return TitleCreateSerializer

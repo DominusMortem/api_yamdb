@@ -7,7 +7,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 
-
 from titles.models import User, Category, Comment, Genre, Review, Title
 
 
@@ -29,7 +28,6 @@ def authenticate(uid, user):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ('username',
@@ -54,7 +52,8 @@ class MyTokenObtainSerializer(TokenObtainSerializer):
 
     def validate(self, attrs):
         uid = attrs['confirmation_code']
-        self.user = get_object_or_404(User, username=attrs[self.username_field])
+        self.user = get_object_or_404(User,
+                                      username=attrs[self.username_field])
         data = dict()
         if authenticate(uid, self.user):
             refresh = self.get_token(self.user)
@@ -102,8 +101,26 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(many=True)
+    genre = GenreSerializer(many=True, read_only=True)
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'category', 'genre', 'description')
+        fields = '__all__'
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field="slug",
+        many=True,
+        required=False,
+        queryset=Genre.objects.all()
+    )
+    category = serializers.SlugRelatedField(
+        slug_field="slug",
+        required=False,
+        queryset=Category.objects.all()
+    )
+
+    class Meta:
+        model = Title
+        fields = '__all__'

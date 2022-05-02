@@ -47,6 +47,9 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ("-pk",)
+
 
 class TitleGenre(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
