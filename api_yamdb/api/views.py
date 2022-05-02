@@ -18,7 +18,7 @@ from .serializers import (UserSerializer, MyTokenObtainSerializer,
                           GenreSerializer, ReviewSerializer, TitleSerializer,
                           TitleCreateSerializer)
 from .mixins import CreateViewSet, ListCreateDeleteViewSet
-from .permissions import IsAdmin
+from .permissions import IsAdmin, IsModerator, IsAuthor
 from .filters import TitleFilter
 
 
@@ -154,7 +154,7 @@ class ReviewViewset(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             permission_classes = [permissions.IsAuthenticatedOrReadOnly]
         else:
-            permission_classes = [IsAdmin]
+            permission_classes = [IsAdmin | IsAuthor | IsModerator]
         return [permission() for permission in permission_classes]
 
 
