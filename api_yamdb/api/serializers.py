@@ -94,6 +94,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError("Нельзя добавить второй отзыв")
         return data
 
+
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
