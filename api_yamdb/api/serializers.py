@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import status, serializers
+from rest_framework import status, serializers, exceptions
 from rest_framework.exceptions import APIException
 from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -87,6 +87,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         read_only_fields = ['author', 'title']
 
+    def validate(self, data):
+        title_id = self.context['view'].kwargs.get("title_id")
+        user = self.context['request'].user
+        if Review.objects.filter(author=user, title_id=title_id).exists():
+            raise exceptions.ValidationError("Нельзя добавить второй отзыв")
+        return data
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
