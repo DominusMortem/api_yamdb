@@ -55,7 +55,9 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'token': 'Отсутствует токен.'},
                             status=status.HTTP_401_UNAUTHORIZED)
         try:
-            valid_data = TokenBackend(algorithm='HS256').decode(token, verify=False)
+            valid_data = TokenBackend(algorithm='HS256').decode(
+                token, verify=False
+            )
             user = User.objects.get(pk=valid_data['user_id'])
             if request.method == 'GET':
                 serializer = self.get_serializer(user, many=False)
@@ -63,16 +65,26 @@ class UserViewSet(viewsets.ModelViewSet):
             elif request.method == 'PATCH':
                 username = request.data.get('username', False)
                 email = request.data.get('email', False)
-                if username != user.username and User.objects.filter(username=username).exists():
+                if (username != user.username and
+                        User.objects.filter(username=username).exists()):
                     return Response({"username": 'Никнейм занят.'})
-                if email != user.email and User.objects.filter(email=email).exists():
+                if (email != user.email and
+                        User.objects.filter(email=email).exists()):
                     return Response({"email": 'Емейл занят.'})
                 if user.role == 'user' and request.data.get('role', False):
                     data = dict(request.data)
                     data['role'] = 'user'
-                    serializer = self.get_serializer(user, data=data, partial={'username': username})
+                    serializer = self.get_serializer(
+                        user,
+                        data=data,
+                        partial={'username': username}
+                    )
                 else:
-                    serializer = self.get_serializer(user, data=request.data, partial={'username': username})
+                    serializer = self.get_serializer(
+                        user,
+                        data=request.data,
+                        partial={'username': username}
+                    )
                 serializer.is_valid(raise_exception=True)
                 self.perform_update(serializer)
                 return Response(serializer.data)
@@ -150,7 +162,7 @@ class ReviewViewset(viewsets.ModelViewSet):
             title=title
         )
 
-    def get_permissions(self): # тут сыпется тест не могу разобраться
+    def get_permissions(self):
         if self.action in ('list', 'retrieve'):
             permission_classes = [permissions.IsAuthenticatedOrReadOnly]
         else:
@@ -215,4 +227,3 @@ class TitleViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAdmin]
         return [permission() for permission in permission_classes]
-

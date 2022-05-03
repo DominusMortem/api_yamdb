@@ -14,9 +14,10 @@ class User(AbstractUser):
         blank=True,
     )
     role = models.CharField(
-                  max_length=10,
-                  choices=CHOICES_ROLE,
-                  default='user')
+        max_length=10,
+        choices=CHOICES_ROLE,
+        default='user'
+    )
 
     class Meta:
         ordering = ('-pk',)
@@ -63,7 +64,6 @@ class Title(models.Model):
 class TitleGenre(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
-
 
 
 class Review(models.Model):

@@ -94,7 +94,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if request.method == 'POST':
             if Review.objects.filter(author=user, title_id=title_id).exists():
-                raise exceptions.ValidationError("Нельзя добавить второй отзыв")
+                raise exceptions.ValidationError(
+                    "Нельзя добавить второй отзыв"
+                )
         return data
 
 
