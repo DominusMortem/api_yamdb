@@ -18,6 +18,9 @@ class User(AbstractUser):
                   choices=CHOICES_ROLE,
                   default='user')
 
+    class Meta:
+        ordering = ('-pk',)
+
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
@@ -62,6 +65,7 @@ class TitleGenre(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
 
+
 class Review(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews')
@@ -89,5 +93,6 @@ class Comment(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
+
     class Meta:
         ordering = ('-pk',)
