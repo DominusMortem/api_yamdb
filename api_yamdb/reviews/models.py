@@ -26,6 +26,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ('-pk',)
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
@@ -33,6 +36,9 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ('-pk',)
 
 
 class Title(models.Model):
@@ -48,7 +54,7 @@ class Title(models.Model):
         return self.name
 
     class Meta:
-        ordering = ("-pk",)
+        ordering = ('-pk',)
 
 
 class TitleGenre(models.Model):
@@ -72,6 +78,7 @@ class Review(models.Model):
                 fields=['author', 'title'],
                 name='unique review')
         ]
+        ordering = ('-pk',)
 
 
 class Comment(models.Model):
@@ -82,3 +89,5 @@ class Comment(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
+    class Meta:
+        ordering = ('-pk',)
