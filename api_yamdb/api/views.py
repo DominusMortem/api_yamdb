@@ -65,11 +65,11 @@ class UserViewSet(viewsets.ModelViewSet):
             elif request.method == 'PATCH':
                 username = request.data.get('username', False)
                 email = request.data.get('email', False)
-                if (username != user.username and
-                        User.objects.filter(username=username).exists()):
+                if (username != user.username
+                        and User.objects.filter(username=username).exists()):
                     return Response({"username": 'Никнейм занят.'})
-                if (email != user.email and
-                        User.objects.filter(email=email).exists()):
+                if (email != user.email
+                        and User.objects.filter(email=email).exists()):
                     return Response({"email": 'Емейл занят.'})
                 if user.role == 'user' and request.data.get('role', False):
                     data = dict(request.data)
