@@ -10,13 +10,16 @@ from rest_framework.pagination import PageNumberPagination
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 
-from titles.models import User, Category, Genre, Title
+from reviews.models import User, Category, Genre, Title
 from .serializers import (UserSerializer, MyTokenObtainSerializer,
                           CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer)
+                          GenreSerializer, ReviewSerializer, TitleSerializer,
+                          TitleCreateSerializer)
 from .mixins import CreateViewSet, ListCreateDeleteViewSet
-from .permissions import IsAdmin
+from .permissions import IsAdmin, IsModerator, IsAuthor
+from .filters import TitleFilter
 
 
 def send_email(user, uid64):
@@ -144,14 +147,14 @@ class ReviewViewset(viewsets.ModelViewSet):
         title = self.get_title_or_404()
         serializer.save(
             author=self.request.user,
-            title_id=title.id
+            title=title
         )
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             permission_classes = [permissions.IsAuthenticatedOrReadOnly]
         else:
-            permission_classes = [IsAdmin]
+            permission_classes = [IsAdmin | IsAuthor | IsModerator]
         return [permission() for permission in permission_classes]
 
 
@@ -189,5 +192,12 @@ class GenresViewSet(ListCreateDeleteViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleSerializer
+        return TitleCreateSerializer

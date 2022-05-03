@@ -47,6 +47,9 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ("-pk",)
+
 
 class TitleGenre(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
@@ -62,6 +65,13 @@ class Review(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique review')
+        ]
 
 
 class Comment(models.Model):
