@@ -215,3 +215,4 @@ class TitleViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAdmin]
         return [permission() for permission in permission_classes]
+
