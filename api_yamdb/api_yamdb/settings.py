@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'api',
-    'titles',
+    'reviews',
     'django_filters',
 ]
 
@@ -106,7 +106,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 
 # Регистрация новой модели пользователя
-AUTH_USER_MODEL = 'titles.User'
+AUTH_USER_MODEL = 'reviews.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

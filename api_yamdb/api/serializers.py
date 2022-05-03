@@ -1,5 +1,6 @@
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import status, serializers
+from rest_framework import status, serializers, exceptions
 from rest_framework.exceptions import APIException
 from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -7,8 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 
-
-from titles.models import User, Category, Comment, Genre, Review, Title
+from reviews.models import User, Category, Comment, Genre, Review, Title
 
 
 class BadConfirmationCode(APIException):
@@ -29,7 +29,6 @@ def authenticate(uid, user):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ('username',
@@ -54,7 +53,8 @@ class MyTokenObtainSerializer(TokenObtainSerializer):
 
     def validate(self, attrs):
         uid = attrs['confirmation_code']
-        self.user = get_object_or_404(User, username=attrs[self.username_field])
+        self.user = get_object_or_404(User,
+                                      username=attrs[self.username_field])
         data = dict()
         if authenticate(uid, self.user):
             refresh = self.get_token(self.user)
@@ -88,6 +88,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         read_only_fields = ['author', 'title']
 
+    def validate(self, data):
+        title_id = self.context['view'].kwargs.get("title_id")
+        user = self.context['request'].user
+        if Review.objects.filter(author=user, title_id=title_id).exists():
+            raise exceptions.ValidationError("Нельзя добавить второй отзыв")
+        return data
+
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
@@ -102,8 +109,33 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(many=True)
+    genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'category', 'genre', 'description')
+        fields = '__all__'
+
+    def get_rating(self, obj):
+        rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
+        if not rating:
+            return rating
+        return round(rating, 1)
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field="slug",
+        many=True,
+        required=False,
+        queryset=Genre.objects.all()
+    )
+    category = serializers.SlugRelatedField(
+        slug_field="slug",
+        required=False,
+        queryset=Category.objects.all()
+    )
+
+    class Meta:
+        model = Title
+        fields = '__all__'
