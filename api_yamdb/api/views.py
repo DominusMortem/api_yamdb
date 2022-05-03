@@ -150,8 +150,8 @@ class ReviewViewset(viewsets.ModelViewSet):
             title=title
         )
 
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
+    def get_permissions(self): # тут сыпется тест не могу разобраться
+        if self.action in ('list', 'retrieve'):
             permission_classes = [permissions.IsAuthenticatedOrReadOnly]
         else:
             permission_classes = [IsAdmin | IsAuthor | IsModerator]
@@ -174,6 +174,13 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             review_id=review.id
         )
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        else:
+            permission_classes = [IsAdmin | IsAuthor | IsModerator]
+        return [permission() for permission in permission_classes]
 
 
 class GenresViewSet(ListCreateDeleteViewSet):
@@ -201,3 +208,10 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return TitleSerializer
         return TitleCreateSerializer
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        else:
+            permission_classes = [IsAdmin]
+        return [permission() for permission in permission_classes]
