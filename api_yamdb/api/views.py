@@ -134,6 +134,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     lookup_field = 'slug'
     search_fields = ('name',)
+    pagination_class = PageNumberPagination
 
     def get_permissions(self):
         if self.action == 'list':
