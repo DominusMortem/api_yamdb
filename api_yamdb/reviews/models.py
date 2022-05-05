@@ -26,7 +26,9 @@ class User(AbstractUser):
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
+    slug = models.SlugField(
+        unique=True,
+        max_length=50)
 
     class Meta:
         ordering = ('-pk',)
@@ -37,7 +39,9 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
+    slug = models.SlugField(
+        unique=True,
+        max_length=50)
 
     class Meta:
         ordering = ('-pk',)
@@ -49,9 +53,10 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(max_length=256)
     year = models.IntegerField()
-    category = models.ForeignKey(Category,
-                                 on_delete=models.DO_NOTHING,
-                                 related_name='category')
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.DO_NOTHING,
+        related_name='category')
     description = models.TextField()
     genre = models.ManyToManyField(Genre, through='TitleGenre')
 
