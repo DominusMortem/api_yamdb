@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+
 
 CHOICES_ROLE = (('user', 'Пользователь'),
                 ('moderator', 'Модератор'),
@@ -58,11 +60,24 @@ class TitleGenre(models.Model):
 
 class Review(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews')
+        User, on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Автор обзора'
+    )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews')
-    score = models.FloatField()
-    text = models.TextField()
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Произведение'
+    )
+    score = models.PositiveSmallIntegerField(
+        'Оценка',
+        validators=[
+            MaxValueValidator(10),
+            MinValueValidator(1)
+        ]
+    )
+    text = models.TextField(verbose_name='Review text')
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
@@ -76,9 +91,17 @@ class Review(models.Model):
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments')
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор комментария'
+    )
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
-    text = models.TextField()
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Обзор'
+    )
+    text = models.TextField('Текст комментария')
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
