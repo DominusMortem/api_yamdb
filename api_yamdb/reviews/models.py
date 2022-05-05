@@ -28,22 +28,22 @@ class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('-pk',)
+
+    def __str__(self):
+        return self.name
 
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('-pk',)
+
+    def __str__(self):
+        return self.name
 
 
 class Title(models.Model):
@@ -55,11 +55,11 @@ class Title(models.Model):
     description = models.TextField()
     genre = models.ManyToManyField(Genre, through='TitleGenre')
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('-pk',)
+
+    def __str__(self):
+        return self.name
 
 
 class TitleGenre(models.Model):
