@@ -7,11 +7,9 @@ from api.validators import validate_year
 
 
 class User(AbstractUser):
-
-    class ChoicesRole(models.TextChoices):
-        USER = 'user', _('Пользователь')
-        MODERATOR = 'moderator', _('Модератор')
-        ADMIN = 'admin', _('Администратор')
+    CHOICES_ROLE = (('user', 'Пользователь'),
+                    ('moderator', 'Модератор'),
+                    ('admin', 'Администратор'))
 
     email = models.EmailField(
         verbose_name=_('Email адрес'),
@@ -23,8 +21,8 @@ class User(AbstractUser):
     )
     role = models.CharField(
         max_length=20,
-        choices=ChoicesRole.choices,
-        default=ChoicesRole.USER,
+        choices=CHOICES_ROLE,
+        default='user',
         verbose_name='Роль'
     )
 
