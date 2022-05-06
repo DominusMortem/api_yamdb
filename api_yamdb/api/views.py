@@ -59,16 +59,16 @@ class UserViewSet(viewsets.ModelViewSet):
                 data = dict(request.data)
                 data['role'] = 'user'
                 serializer = self.get_serializer(
-                        user,
-                        data=data,
-                        partial=True
-                    )
+                    user,
+                    data=data,
+                    partial=True
+                )
             else:
                 serializer = self.get_serializer(
-                        user,
-                        data=request.data,
-                        partial=True
-                    )
+                    user,
+                    data=request.data,
+                    partial=True
+                )
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             return Response(serializer.data)

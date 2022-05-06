@@ -1,4 +1,3 @@
-from rest_framework.validators import UniqueTogetherValidator
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, exceptions
@@ -30,8 +29,12 @@ class SignUpSerializer(serializers.Serializer):
 
     def validate(self, data):
         request = self.context['request']
-        user_by_name = User.objects.filter(username=request.data.get('username'))
-        user_by_email = User.objects.filter(email=request.data.get('email'))
+        user_by_name = User.objects.filter(
+            username=request.data.get('username')
+        )
+        user_by_email = User.objects.filter(
+            email=request.data.get('email')
+        )
         if request.data.get('username') == 'me':
             raise exceptions.ValidationError(
                 'Такое имя создать нельзя!'
