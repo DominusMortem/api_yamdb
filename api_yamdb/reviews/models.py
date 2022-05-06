@@ -1,15 +1,22 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import enums
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+
 
 from api.validators import validate_year
 
 
 class User(AbstractUser):
-    CHOICES_ROLE = (('user', 'Пользователь'),
+    """CHOICES_ROLE = (('user', 'Пользователь'),
                     ('moderator', 'Модератор'),
-                    ('admin', 'Администратор'))
+                    ('admin', 'Администратор'))"""
+
+    class ChoicesRole(enums.TextChoices):
+        USER = 'user', _('Пользователь')
+        MODERATOR = 'moderator', _('Модератор')
+        ADMIN = 'admin', _('Администратор')
 
     email = models.EmailField(
         verbose_name=_('Email адрес'),
@@ -21,8 +28,8 @@ class User(AbstractUser):
     )
     role = models.CharField(
         max_length=20,
-        choices=CHOICES_ROLE,
-        default='user',
+        choices=ChoicesRole.choices,
+        default=ChoicesRole.USER,
         verbose_name='Роль'
     )
 
