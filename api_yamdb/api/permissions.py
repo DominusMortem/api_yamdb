@@ -6,10 +6,10 @@ class IsAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         check_method = request.method in SAFE_METHODS
         check_admin = (
-                request.user
-                and request.user.is_authenticated
-                and request.user.is_admin
-                or request.user.is_staff
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_admin
+            or request.user.is_staff
         )
         if 'users' in request.META.get('PATH_INFO'):
             return bool(check_admin)
