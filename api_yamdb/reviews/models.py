@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+from api.validators import validate_year
 
 CHOICES_ROLE = (('user', 'Пользователь'),
                 ('moderator', 'Модератор'),
@@ -26,40 +27,54 @@ class User(AbstractUser):
 
 class Category(models.Model):
     name = models.CharField(max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
-
-    def __str__(self):
-        return self.name
+    slug = models.SlugField(
+        unique=True,
+        max_length=50)
 
     class Meta:
         ordering = ('-pk',)
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+    def __str__(self):
+        return self.name
 
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
-
-    def __str__(self):
-        return self.name
+    slug = models.SlugField(
+        unique=True,
+        max_length=50)
 
     class Meta:
         ordering = ('-pk',)
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+
+    def __str__(self):
+        return self.name
 
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField()
-    category = models.ForeignKey(Category,
-                                 on_delete=models.DO_NOTHING,
-                                 related_name='category')
+    year = models.IntegerField(
+        db_index=True,
+        validators=[validate_year]
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.DO_NOTHING,
+        related_name='category')
     description = models.TextField()
     genre = models.ManyToManyField(Genre, through='TitleGenre')
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('-pk',)
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
+
+    def __str__(self):
+        return self.name
 
 
 class TitleGenre(models.Model):
