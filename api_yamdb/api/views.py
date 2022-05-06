@@ -100,17 +100,10 @@ class CategoryViewSet(ListCreateDeleteViewSet):
     search_fields = ('name',)
     permission_classes = [IsAdmin, permissions.IsAuthenticatedOrReadOnly]
 
-    """def get_permissions(self):
-        if self.action == 'list':
-            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-        else:
-            permission_classes = [IsAdmin]
-        return [permission() for permission in permission_classes]"""
 
-
-class ReviewViewset(viewsets.ModelViewSet):
+class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    #permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAdmin, IsAuthor, IsModerator]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly & IsAdmin | IsAuthor | IsModerator]
 
     def get_title_or_404(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -128,17 +121,10 @@ class ReviewViewset(viewsets.ModelViewSet):
             title=title
         )
 
-    def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
-            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-        else:
-            permission_classes = [IsAdmin | IsAuthor | IsModerator]
-        return [permission() for permission in permission_classes]
-
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    #permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAdmin, IsAuthor, IsModerator]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly & IsAdmin | IsAuthor | IsModerator]
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -154,13 +140,6 @@ class CommentViewSet(viewsets.ModelViewSet):
             review_id=review.id
         )
 
-    def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
-            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-        else:
-            permission_classes = [IsAdmin | IsAuthor | IsModerator]
-        return [permission() for permission in permission_classes]
-
 
 class GenresViewSet(ListCreateDeleteViewSet):
     queryset = Genre.objects.all()
@@ -168,14 +147,7 @@ class GenresViewSet(ListCreateDeleteViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     lookup_field = 'slug'
     search_fields = ('name',)
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAdmin, permissions.AllowAny]
-
-    """def get_permissions(self):
-        if self.action == 'list':
-            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-        else:
-            permission_classes = [IsAdmin]
-        return [permission() for permission in permission_classes]"""
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAdmin]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -189,10 +161,3 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return TitleSerializer
         return TitleCreateSerializer
-
-    """def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
-            permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-        else:
-            permission_classes = [IsAdmin]
-        return [permission() for permission in permission_classes]"""
