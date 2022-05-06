@@ -88,6 +88,7 @@ class SignUpViewSet(CreateViewSet):
         send_email(user)
         return Response(request.data, status=status.HTTP_200_OK)
 
+
 class MyTokenView(TokenObtainPairView):
     serializer_class = MyTokenObtainSerializer
 
@@ -104,7 +105,12 @@ class CategoryViewSet(ListCreateDeleteViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly & IsAdmin | IsAuthor | IsModerator]
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly
+        & IsAdmin
+        | IsAuthor
+        | IsModerator
+    ]
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -121,7 +127,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly & IsAdmin | IsAuthor | IsModerator]
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly
+        & IsAdmin
+        | IsAuthor
+        | IsModerator
+    ]
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))

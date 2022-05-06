@@ -1,7 +1,7 @@
+from rest_framework.validators import UniqueTogetherValidator
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, exceptions
-from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -28,11 +28,10 @@ class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
 
-
     def validate(self, data):
         request = self.context['request']
         user_by_name = User.objects.filter(username=request.data.get('username'))
-        email_by_mail = User.objects.filter(email=request.data.get('email'))
+        user_by_email = User.objects.filter(email=request.data.get('email'))
         if request.data.get('username') == 'me':
             raise exceptions.ValidationError(
                 'Такое имя создать нельзя!'
@@ -45,14 +44,13 @@ class SignUpSerializer(serializers.Serializer):
                 'Пользователь с таким именем уже существует.', code='unique'
             )
         elif (
-                email_by_mail.exists()
-                and email_by_mail[0].username != request.data.get('username')
+                user_by_email.exists()
+                and user_by_email[0].username != request.data.get('username')
         ):
             raise exceptions.ValidationError(
                 'user с таким Email адрес уже существует.', code='unique'
             )
         return data
-
 
 
 class MyTokenObtainSerializer(TokenObtainSerializer):
@@ -85,12 +83,14 @@ class MyTokenObtainSerializer(TokenObtainSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Category
         fields = ('name', 'slug')
 
 
 class GenreSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Genre
         fields = ('name', 'slug')
@@ -120,7 +120,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+        read_only=True,
+        slug_field='username'
     )
 
     class Meta:

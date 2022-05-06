@@ -42,12 +42,9 @@ class User(AbstractUser):
             return True
 
 
-
 class Category(models.Model):
     name = models.CharField(max_length=256)
-    slug = models.SlugField(
-        unique=True,
-        max_length=50)
+    slug = models.SlugField(unique=True, max_length=50)
 
     class Meta:
         ordering = ('-pk',)
@@ -60,9 +57,7 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
-    slug = models.SlugField(
-        unique=True,
-        max_length=50)
+    slug = models.SlugField(unique=True, max_length=50)
 
     class Meta:
         ordering = ('-pk',)
@@ -75,14 +70,12 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField(
-        db_index=True,
-        validators=[validate_year]
-    )
+    year = models.IntegerField(db_index=True, validators=[validate_year])
     category = models.ForeignKey(
         Category,
         on_delete=models.DO_NOTHING,
-        related_name='category')
+        related_name='category'
+    )
     description = models.TextField()
     genre = models.ManyToManyField(Genre, through='TitleGenre')
 
@@ -121,7 +114,10 @@ class Review(models.Model):
     )
     text = models.TextField(verbose_name='Review text')
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
         constraints = [
@@ -147,7 +143,10 @@ class Comment(models.Model):
     )
     text = models.TextField('Текст комментария')
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
         ordering = ('-pk',)
