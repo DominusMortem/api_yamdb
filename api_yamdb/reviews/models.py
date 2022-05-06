@@ -4,25 +4,43 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 from api.validators import validate_year
 
-CHOICES_ROLE = (('user', 'Пользователь'),
-                ('moderator', 'Модератор'),
-                ('admin', 'Администратор'))
 
 
 class User(AbstractUser):
-    email = models.EmailField(_('email address'), unique=True)
+
+    class ChoicesRole(models.TextChoices):
+        USER = 'user', _('Пользователь')
+        MODERATOR = 'moderator', _('Модератор')
+        ADMIN = 'admin', _('Администратор')
+
+    email = models.EmailField(
+        verbose_name=_('Email адрес'),
+        unique=True
+    )
     bio = models.TextField(
-        'Биография',
-        blank=True,
+        verbose_name='Биография',
+        blank=True
     )
     role = models.CharField(
-        max_length=10,
-        choices=CHOICES_ROLE,
-        default='user'
+        max_length=20,
+        choices=ChoicesRole.choices,
+        default=ChoicesRole.USER,
+        verbose_name='Роль'
     )
 
     class Meta:
         ordering = ('-pk',)
+
+    @property
+    def is_admin(self):
+        if self.role == 'admin':
+            return True
+
+    @property
+    def is_moderator(self):
+        if self.role == 'moderator':
+            return True
+
 
 
 class Category(models.Model):

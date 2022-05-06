@@ -1,42 +1,58 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import status, serializers, exceptions
-from rest_framework.exceptions import APIException
+from rest_framework import serializers, exceptions
+from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from django.utils.http import urlsafe_base64_decode
-from django.utils.translation import gettext_lazy as _
-
 from reviews.models import User, Category, Comment, Genre, Review, Title
-
-
-class BadConfirmationCode(APIException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _('Wrong confirmation code.')
-    default_code = 'Wrong confirmation code'
-
-
-def authenticate(uid, user):
-    try:
-        uid_decode = urlsafe_base64_decode(uid)
-        username = user
-        user_id = user.id
-        if uid_decode.decode('utf-8') == f'{user_id}/{username}':
-            return True
-    except ValueError:
-        return False
+from .exceptions import BadConfirmationCode
+from .utils import authenticate
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-        fields = ('username',
-                  'email',
-                  'first_name',
-                  'last_name',
-                  'bio',
-                  'role')
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+
+
+class SignUpSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+
+
+    def validate(self, data):
+        request = self.context['request']
+        user_by_name = User.objects.filter(username=request.data.get('username'))
+        email_by_mail = User.objects.filter(email=request.data.get('email'))
+        if request.data.get('username') == 'me':
+            raise exceptions.ValidationError(
+                'Такое имя создать нельзя!'
+            )
+        elif (
+                user_by_name.exists()
+                and user_by_name[0].email != request.data.get('email')
+        ):
+            raise exceptions.ValidationError(
+                'Пользователь с таким именем уже существует.', code='unique'
+            )
+        elif (
+                email_by_mail.exists()
+                and email_by_mail[0].username != request.data.get('username')
+        ):
+            raise exceptions.ValidationError(
+                'user с таким Email адрес уже существует.', code='unique'
+            )
+        return data
+
 
 
 class MyTokenObtainSerializer(TokenObtainSerializer):
@@ -52,11 +68,13 @@ class MyTokenObtainSerializer(TokenObtainSerializer):
         return RefreshToken.for_user(user)
 
     def validate(self, attrs):
-        uid = attrs['confirmation_code']
-        self.user = get_object_or_404(User,
-                                      username=attrs[self.username_field])
+        confirmation_code = attrs['confirmation_code']
+        self.user = get_object_or_404(
+            User,
+            username=attrs[self.username_field]
+        )
         data = dict()
-        if authenticate(uid, self.user):
+        if authenticate(confirmation_code, self.user):
             refresh = self.get_token(self.user)
             data['token'] = str(refresh.access_token)
         else:
