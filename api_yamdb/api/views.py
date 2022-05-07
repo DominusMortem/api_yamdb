@@ -44,10 +44,10 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         elif request.method == 'PATCH':
             serializer = self.get_serializer(
-                    user,
-                    data=request.data,
-                    partial=True
-                )
+                user,
+                data=request.data,
+                partial=True
+            )
             if serializer.instance is not None:
                 serializer.fields.get('role').read_only = True
             serializer.is_valid(raise_exception=True)
