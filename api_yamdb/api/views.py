@@ -34,41 +34,22 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=False,
-        methods=['get', 'patch'],
+        methods=['GET', 'PATCH'],
         permission_classes=[permissions.IsAuthenticated]
     )
     def me(self, request):
-        user = User.objects.get(username=request._user)
+        user = request._user
         if request.method == 'GET':
             serializer = self.get_serializer(user, many=False)
             return Response(serializer.data, status=status.HTTP_200_OK)
         elif request.method == 'PATCH':
-            username = request.data.get('username', False)
-            email = request.data.get('email', False)
-            if (
-                    username != user.username
-                    and User.objects.filter(username=username).exists()
-            ):
-                return Response({"username": 'Никнейм занят.'})
-            if (
-                    email != user.email
-                    and User.objects.filter(email=email).exists()
-            ):
-                return Response({"email": 'Емейл занят.'})
-            if user.role == 'user' and request.data.get('role', False):
-                data = dict(request.data)
-                data['role'] = 'user'
-                serializer = self.get_serializer(
-                    user,
-                    data=data,
-                    partial=True
-                )
-            else:
-                serializer = self.get_serializer(
+            serializer = self.get_serializer(
                     user,
                     data=request.data,
                     partial=True
                 )
+            if serializer.instance is not None:
+                serializer.fields.get('role').read_only = True
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             return Response(serializer.data)
@@ -84,7 +65,7 @@ class SignUpViewSet(CreateViewSet):
         serializer.is_valid(raise_exception=True)
         username = serializer.data['username']
         email = serializer.data['email']
-        user = User.objects.get_or_create(username=username, email=email)[0]
+        user, _ = User.objects.get_or_create(username=username, email=email)
         send_email(user)
         return Response(request.data, status=status.HTTP_200_OK)
 

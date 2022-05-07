@@ -8,9 +8,14 @@ from api.validators import validate_year
 
 
 class User(AbstractUser):
-    CHOICES_ROLE = (('user', 'Пользователь'),
-                    ('moderator', 'Модератор'),
-                    ('admin', 'Администратор'))
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+    CHOICES_ROLE = [
+        (USER, 'Пользователь'),
+        (MODERATOR, 'Модератор'),
+        (ADMIN, 'Администратор'),
+    ]
 
     email = models.EmailField(
         verbose_name=_('Email адрес'),
@@ -23,7 +28,7 @@ class User(AbstractUser):
     role = models.CharField(
         max_length=20,
         choices=CHOICES_ROLE,
-        default='user',
+        default=USER,
         verbose_name='Роль'
     )
 
@@ -32,13 +37,11 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        if self.role == 'admin':
-            return True
+        return self.role == 'admin'
 
     @property
     def is_moderator(self):
-        if self.role == 'moderator':
-            return True
+        return self.role == 'moderator'
 
 
 class Category(models.Model):
@@ -107,8 +110,8 @@ class Review(models.Model):
     score = models.PositiveSmallIntegerField(
         'Оценка',
         validators=[
-            MaxValueValidator(10),
-            MinValueValidator(1)
+            MaxValueValidator(10, 'Не должно превышать 10'),
+            MinValueValidator(1, 'Не должно быть меньше 1')
         ]
     )
     text = models.TextField(verbose_name='Review text')
