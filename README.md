@@ -51,7 +51,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-###Зависимости:
+Зависимости:
 
 ```
 requests==2.26.0
