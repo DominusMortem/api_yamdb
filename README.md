@@ -54,6 +54,7 @@ python manage.py runserver
 Зависимости:
 
 ```
+Python==3.7
 requests==2.26.0
 django==3.0.0
 djangorestframework==3.12.4
