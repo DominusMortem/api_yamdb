@@ -39,7 +39,7 @@ pip install -r requirements.txt
 Выполнить миграции:
 
 ```
-cd yatube_api
+cd api_yamdb
 ```
 ```
 python manage.py migrate
